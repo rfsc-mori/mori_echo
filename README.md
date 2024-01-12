@@ -1,29 +1,36 @@
 # MoriEcho
+
 This is a TCP Echo Server assignment.
 
 ## Main dependencies:
+
 - C++20
 - boost.asio with coroutines support
 
 ## Development environment:
+
 - [x] Uses my personal DevContainer template for VSCode
 - [ ] Provides Docker environments for building, testing and running
 
 ## Building
+
 ### Debug:
+
 ```sh
 cmake -B build/ --preset debug
 cmake --build build/
 ```
 
 ### Release:
+
 ```sh
 cmake -B build/ --preset release
 cmake --build build/
 ```
 
 ## Server overview:
-- [ ] Provides a TCP server capable of asynchronous processing
+
+- [x] Provides a TCP server capable of asynchronous processing
 - [ ] Validates messages as efficiently as possible
 - [ ] Rejects invalid messages and attempts to fail fast
 - [ ] Requires user authentication before echoing
@@ -33,6 +40,7 @@ cmake --build build/
 - [ ] Echoes the plain (decrypted) message from the echo request
 
 ## Reference client implementation:
+
 - [ ] Accepts a command sequence from execution arguments
 - [ ] Authenticates using the parameters from execution arguments
 - [ ] Logs all sent and received messages
@@ -42,6 +50,7 @@ cmake --build build/
 - [ ] Exits with return code 0 if no errors occurs
 
 ### Command line example:
+
 ```
 ./build/reference_client -u test -p test first_message second_message
 ```
@@ -49,6 +58,7 @@ cmake --build build/
 ## Messages format:
 
 ### [ ] Header
+
 ```cpp
 namespace mori_echo::messages {
     enum class message_types : uint8_t {
@@ -67,6 +77,7 @@ namespace mori_echo::messages {
 ```
 
 ### [ ] Login Request
+
 ```cpp
 namespace mori_echo::message_limits {
     inline constexpr auto username_size = 32;
@@ -83,6 +94,7 @@ namespace mori_echo::messages {
 ```
 
 ### [ ] Login Response
+
 ```cpp
 namespace mori_echo::mori_status {
     enum class login_status : uint32_t {
@@ -100,6 +112,7 @@ namespace mori_echo::messages {
 ```
 
 ### [ ] Echo Request
+
 ```cpp
 namespace mori_echo::messages {
     struct echo_request {
@@ -111,6 +124,7 @@ namespace mori_echo::messages {
 ```
 
 ### [ ] Echo Response
+
 ```cpp
 namespace mori_echo::messages {
     struct echo_response {
@@ -122,11 +136,14 @@ namespace mori_echo::messages {
 ```
 
 # Attributions
+
 This project uses Microsoft's CPP DevContainer image for the development environment:  
 https://github.com/devcontainers/images/blob/main/src/cpp/README.md
 
 # License
+
 MIT
 
 # Author
+
 Rafael Fillipe Silva (https://github.com/rfsc-mori)
