@@ -1,0 +1,52 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 25,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "debug",
+      "displayName": "Debug configure",
+      "description": "Debug configure, using Ninja generator",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": "$env{$VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Release configure",
+      "description": "Release configure, using Ninja generator",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "$env{$VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "displayName": "Debug build",
+      "description": "Debug build",
+      "configurePreset": "debug",
+      "targets": [
+        "all"
+      ]
+    },
+    {
+      "name": "release",
+      "displayName": "Release build",
+      "description": "Release build",
+      "configurePreset": "release",
+      "targets": [
+        "all"
+      ]
+    }
+  ]
+}

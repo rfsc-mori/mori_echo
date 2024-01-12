@@ -9,6 +9,19 @@ This is a TCP Echo Server assignment.
 - [x] Uses my personal DevContainer template for VSCode
 - [ ] Provides Docker environments for building, testing and running
 
+## Building
+### Debug:
+```sh
+cmake -B build/ --preset debug
+cmake --build build/
+```
+
+### Release:
+```sh
+cmake -B build/ --preset release
+cmake --build build/
+```
+
 ## Server overview:
 - [ ] Provides a TCP server capable of asynchronous processing
 - [ ] Validates messages as efficiently as possible
