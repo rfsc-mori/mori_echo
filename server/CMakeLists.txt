@@ -8,6 +8,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Dependencies
+## Common
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
 ## Boost
 find_package(Boost 1.81.0 REQUIRED COMPONENTS context system)
 include_directories(${Boost_INCLUDE_DIRS})
@@ -25,4 +28,8 @@ target_sources(
   mori_echo_server
   PRIVATE
     src/main.cpp
+    src/echo_server/echo_server.hpp
+    src/echo_server/echo_server.cpp
+  PUBLIC
+    ${CMAKE_SOURCE_DIR}/include/mori_echo/server_config.hpp
 )
