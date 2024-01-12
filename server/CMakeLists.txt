@@ -7,8 +7,14 @@ set(CMAKE_CXX_STANDARD 20)
 # clangd intellisense
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# Dependencies
+## Boost
+find_package(Boost 1.81.0 REQUIRED COMPONENTS context system)
+include_directories(${Boost_INCLUDE_DIRS})
+
 # Targets
 add_executable(mori_echo_server ${SOURCES})
+target_link_libraries(mori_echo_server PRIVATE ${Boost_LIBRARIES})
 
 # Source
 target_sources(
