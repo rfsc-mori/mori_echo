@@ -12,9 +12,13 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(Boost 1.81.0 REQUIRED COMPONENTS context system)
 include_directories(${Boost_INCLUDE_DIRS})
 
+## Spdlog
+find_package(spdlog CONFIG REQUIRED)
+include_directories(${spdlog_INCLUDE_DIRS})
+
 # Targets
 add_executable(mori_echo_server ${SOURCES})
-target_link_libraries(mori_echo_server PRIVATE ${Boost_LIBRARIES})
+target_link_libraries(mori_echo_server PRIVATE ${Boost_LIBRARIES} spdlog::spdlog)
 
 # Source
 target_sources(
