@@ -3,10 +3,13 @@
 #include <boost/asio/co_spawn.hpp>
 #include <boost/asio/detached.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
 #include <functional>
 #include <spdlog/spdlog.h>
 
 #include "client_channel/client_channel.hpp"
+#include "client_session/client_session.hpp"
 #include "message_receiver/message_receiver.hpp"
 
 namespace mori_echo {
@@ -16,11 +19,21 @@ namespace mori_echo {
   return logger;
 }
 
+[[nodiscard]] auto make_client_session(boost::asio::ip::tcp::endpoint endpoint)
+    -> client_session {
+  return {
+      .uuid = boost::uuids::to_string(boost::uuids::random_generator{}()),
+      .address = endpoint.address().to_string(),
+
+      .is_logged_in = false,
+  };
+}
+
 [[nodiscard]] auto handle_client(boost::asio::ip::tcp::socket socket)
     -> boost::asio::awaitable<void> {
-  const auto client_id = socket.remote_endpoint().address().to_string();
+  auto session = make_client_session(socket.remote_endpoint());
 
-  logger()->info("New client connected: {}", client_id);
+  logger()->info("New client connected: {}", session.uuid);
 
   auto channel = client_channel{std::move(socket)};
 
@@ -30,12 +43,12 @@ namespace mori_echo {
     }
   } catch (const boost::system::system_error& error) {
     if (error.code() != boost::asio::error::eof) {
-      logger()->warn("Dropping client {}. Reason: {}", client_id, error.what());
+      logger()->warn("Dropping client {}. Reason: {}", session.uuid, error.what());
     } else {
-      logger()->info("Client {} disconnected.", client_id);
+      logger()->info("Client {} disconnected.", session.uuid);
     }
   } catch (const std::exception& error) {
-    logger()->warn("Dropping client {}. Reason: {}", client_id, error.what());
+    logger()->warn("Dropping client {}. Reason: {}", session.uuid, error.what());
   }
 }
 
