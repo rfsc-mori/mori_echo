@@ -29,10 +29,13 @@ target_sources(
   mori_echo_server
   PRIVATE
     src/main.cpp
+    src/client_authenticator/allow_all_client_authenticator.cpp
     src/client_channel/client_channel.cpp
     src/echo_server/echo_server.cpp
     src/message_receiver/message_receiver.cpp
   PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/client_authenticator/allow_all_client_authenticator.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/client_authenticator/client_authenticator.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/client_channel/client_channel.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/echo_server/echo_server.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/exceptions/client_error.hpp
