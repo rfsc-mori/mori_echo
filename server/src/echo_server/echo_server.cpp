@@ -3,7 +3,7 @@
 #include <boost/asio/co_spawn.hpp>
 #include <boost/asio/detached.hpp>
 #include <boost/asio/ip/tcp.hpp>
-#include <cstdint>
+#include <functional>
 #include <spdlog/spdlog.h>
 
 #include "client_channel/client_channel.hpp"
@@ -39,18 +39,17 @@ namespace mori_echo {
   }
 }
 
-[[nodiscard]] auto tcp_listen(boost::asio::io_context& context,
-                              std::uint16_t port)
+[[nodiscard]] auto tcp_listen(echo_server_context ctx)
     -> boost::asio::awaitable<void> {
   auto acceptor = boost::asio::ip::tcp::acceptor{
-      context, {boost::asio::ip::tcp::v4(), port}};
+      ctx.io_context, {boost::asio::ip::tcp::v4(), ctx.port}};
 
   logger()->info("Listening on port: {}", acceptor.local_endpoint().port());
 
   for (;;) {
     auto socket = co_await acceptor.async_accept(boost::asio::use_awaitable);
 
-    boost::asio::co_spawn(context, handle_client(std::move(socket)),
+    boost::asio::co_spawn(ctx.io_context, handle_client(std::move(socket)),
                           [](std::exception_ptr error) {
                             if (error) {
                               std::rethrow_exception(error);
@@ -59,9 +58,10 @@ namespace mori_echo {
   }
 }
 
-auto spawn_server(boost::asio::io_context& context, std::uint16_t port)
-    -> void {
-  boost::asio::co_spawn(context, tcp_listen(context, port),
+auto spawn_server(echo_server_context ctx) -> void {
+  auto io_context = std::ref(ctx.io_context);
+
+  boost::asio::co_spawn(io_context.get(), tcp_listen(std::move(ctx)),
                         [](std::exception_ptr error) {
                           if (error) {
                             std::rethrow_exception(error);

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <boost/asio/io_context.hpp>
+#include "echo_server_context.hpp"
 
 namespace mori_echo {
 
-auto spawn_server(boost::asio::io_context& context, std::uint16_t port) -> void;
+auto spawn_server(echo_server_context ctx) -> void;
 
 } // namespace mori_echo

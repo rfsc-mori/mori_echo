@@ -38,6 +38,7 @@ target_sources(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/client_authenticator/client_authenticator.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/client_channel/client_channel.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/echo_server/echo_server.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/echo_server/echo_server_context.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/exceptions/client_error.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/message_receiver/message_receiver.hpp
   PUBLIC

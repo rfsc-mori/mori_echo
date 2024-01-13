@@ -15,7 +15,10 @@ auto main() -> int {
     auto signals = boost::asio::signal_set{io_context, SIGINT, SIGTERM};
     signals.async_wait([&](auto, auto) { io_context.stop(); });
 
-    mori_echo::spawn_server(io_context, mori_echo::config::tcp_port);
+    mori_echo::spawn_server({
+        .io_context = io_context,
+        .port = mori_echo::config::tcp_port,
+    });
 
     io_context.run();
   } catch (const std::exception& error) {
