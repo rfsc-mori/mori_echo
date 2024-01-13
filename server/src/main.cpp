@@ -6,6 +6,21 @@
 #include "echo_server/echo_server.hpp"
 #include "mori_echo/server_config.hpp"
 
+auto log_fatal_error(const std::exception& error, int level = 0) -> void {
+  if (level == 0) {
+    spdlog::error("Fatal error: {}", error.what());
+  } else {
+    spdlog::error("{: >{}}Caused by: {}", "", level, error.what());
+  }
+
+  try {
+    std::rethrow_if_nested(error);
+  } catch (const std::exception& nested) {
+    log_fatal_error(nested, level + 1);
+  } catch (...) {
+  }
+}
+
 auto main() -> int {
   spdlog::info("MoriEcho TCP Echo Server started.");
 
@@ -22,7 +37,7 @@ auto main() -> int {
 
     io_context.run();
   } catch (const std::exception& error) {
-    spdlog::error("Fatal error: {}", error.what());
+    log_fatal_error(error);
     return -1;
   }
 

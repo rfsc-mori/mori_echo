@@ -5,6 +5,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <exception>
 #include <functional>
 #include <spdlog/spdlog.h>
 
@@ -17,6 +18,23 @@ namespace mori_echo {
 [[nodiscard]] auto logger() -> std::shared_ptr<spdlog::logger> {
   static auto logger = spdlog::default_logger()->clone("echo_server");
   return logger;
+}
+
+auto log_client_error(const std::exception& error,
+                      const client_session& session, int level = 0) -> void {
+  if (level == 0) {
+    logger()->warn("Dropping client {}. Reason: {}", session.uuid,
+                   error.what());
+  } else {
+    logger()->warn("{: >{}}Caused by: {}", "", level, error.what());
+  }
+
+  try {
+    std::rethrow_if_nested(error);
+  } catch (const std::exception& nested) {
+    log_client_error(nested, session, level + 1);
+  } catch (...) {
+  }
 }
 
 [[nodiscard]] auto make_client_session(boost::asio::ip::tcp::endpoint endpoint)
@@ -43,12 +61,12 @@ namespace mori_echo {
     }
   } catch (const boost::system::system_error& error) {
     if (error.code() != boost::asio::error::eof) {
-      logger()->warn("Dropping client {}. Reason: {}", session.uuid, error.what());
+      log_client_error(error, session);
     } else {
       logger()->info("Client {} disconnected.", session.uuid);
     }
   } catch (const std::exception& error) {
-    logger()->warn("Dropping client {}. Reason: {}", session.uuid, error.what());
+    log_client_error(error, session);
   }
 }
 
