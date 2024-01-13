@@ -22,7 +22,7 @@ auto client_channel::send(std::vector<std::byte> data)
                                     boost::asio::use_awaitable);
 }
 
-auto client_channel::receive_into(void* buffer, std::size_t size)
+auto client_channel::receive_raw(void* buffer, std::size_t size)
     -> boost::asio::awaitable<void> {
   assert(buffer != nullptr);
 
