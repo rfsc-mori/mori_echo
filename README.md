@@ -35,7 +35,7 @@ cmake --build build/
 - [x] Rejects invalid messages and attempts to fail fast
 - [x] Requires user authentication before echoing
 - [x] Accepts any combination of username and password
-- [ ] Keeps a per-session user context, containing the current cipher_key
+- [x] Keeps a per-session user context, containing the username and password checksums
 - [ ] Decrypts client messages
 - [ ] Echoes the plain (decrypted) message from the echo request
 
