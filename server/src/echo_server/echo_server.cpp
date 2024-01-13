@@ -13,7 +13,10 @@
 #include "client_session/client_session.hpp"
 #include "exceptions/client_error.hpp"
 #include "message_receiver/message_receiver.hpp"
+#include "message_sender/message_sender.hpp"
 #include "message_types/login_request.hpp"
+#include "message_types/login_response.hpp"
+#include "mori_status/login_status.hpp"
 
 namespace mori_echo {
 
@@ -68,6 +71,8 @@ handle_new_client(client_channel& channel, client_session& session,
     throw exceptions::client_error{"The client is not logged in."};
   }
 
+  const auto sequence = header.sequence;
+
   const auto login = co_await receive_message<messages::login_request>(
       channel, std::move(header));
 
@@ -81,7 +86,12 @@ handle_new_client(client_channel& channel, client_session& session,
   }
 
   if (!authentication_error) {
+    co_await send_message<messages::login_response>(
+        channel, sequence, mori_status::login_status::OK);
   } else {
+    co_await send_message<messages::login_response>(
+        channel, sequence, mori_status::login_status::FAILED);
+
     try {
       std::rethrow_exception(authentication_error);
     } catch (const std::exception& error) {

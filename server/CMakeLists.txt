@@ -33,6 +33,7 @@ target_sources(
     src/client_channel/client_channel.cpp
     src/echo_server/echo_server.cpp
     src/message_receiver/message_receiver.cpp
+    src/message_sender/message_sender.cpp
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include/client_authenticator/allow_all_client_authenticator.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/client_authenticator/client_authenticator.hpp
@@ -42,6 +43,7 @@ target_sources(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/echo_server/echo_server_context.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/exceptions/client_error.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/message_receiver/message_receiver.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/message_sender/message_sender.hpp
   PUBLIC
     ${CMAKE_SOURCE_DIR}/include/mori_echo/endian_mode.hpp
     ${CMAKE_SOURCE_DIR}/include/mori_echo/server_config.hpp
