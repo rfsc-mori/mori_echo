@@ -21,12 +21,21 @@ public:
     requires std::is_trivially_copyable_v<T>
   [[nodiscard]] auto receive_as() -> boost::asio::awaitable<T> {
     auto buffer = T{};
-    co_await receive_into(&buffer, sizeof(T));
+    co_await receive_raw(&buffer, sizeof(T));
     co_return buffer;
   }
 
+  template <typename T>
+    requires std::is_trivially_copyable_v<T>
+  [[nodiscard]] auto send_as(T data) -> boost::asio::awaitable<void> {
+    co_await send_raw(&data, sizeof(T));
+  }
+
 private:
-  auto receive_into(void* buffer, std::size_t size)
+  [[nodiscard]] auto receive_raw(void* buffer, std::size_t size)
+      -> boost::asio::awaitable<void>;
+
+  [[nodiscard]] auto send_raw(void* buffer, std::size_t size)
       -> boost::asio::awaitable<void>;
 
 private:

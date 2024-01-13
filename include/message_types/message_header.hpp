@@ -7,9 +7,9 @@
 namespace mori_echo::messages {
 
 struct message_header {
-  uint16_t total_size;
+  std::uint16_t total_size;
   message_type type;
-  uint8_t sequence;
+  std::uint8_t sequence;
 };
 
 } // namespace mori_echo::messages

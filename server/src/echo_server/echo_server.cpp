@@ -3,11 +3,20 @@
 #include <boost/asio/co_spawn.hpp>
 #include <boost/asio/detached.hpp>
 #include <boost/asio/ip/tcp.hpp>
-#include <cstdint>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <exception>
+#include <functional>
 #include <spdlog/spdlog.h>
 
 #include "client_channel/client_channel.hpp"
+#include "client_session/client_session.hpp"
+#include "exceptions/client_error.hpp"
 #include "message_receiver/message_receiver.hpp"
+#include "message_sender/message_sender.hpp"
+#include "message_types/login_request.hpp"
+#include "message_types/login_response.hpp"
+#include "mori_status/login_status.hpp"
 
 namespace mori_echo {
 
@@ -16,41 +25,133 @@ namespace mori_echo {
   return logger;
 }
 
-[[nodiscard]] auto handle_client(boost::asio::ip::tcp::socket socket)
-    -> boost::asio::awaitable<void> {
-  const auto client_id = socket.remote_endpoint().address().to_string();
+auto log_client_error(const std::exception& error,
+                      const client_session& session, int level = 0) -> void {
+  if (level == 0) {
+    logger()->warn("Dropping client {}. Reason: {}", session.uuid,
+                   error.what());
+  } else {
+    logger()->warn("{: >{}}Caused by: {}", "", level, error.what());
+  }
 
-  logger()->info("New client connected: {}", client_id);
+  try {
+    std::rethrow_if_nested(error);
+  } catch (const std::exception& nested) {
+    log_client_error(nested, session, level + 1);
+  } catch (...) {
+  }
+}
+
+[[nodiscard]] auto handle_authenticated_client(client_channel& channel,
+                                               client_session&)
+    -> boost::asio::awaitable<void> {
+  auto header = co_await receive_header(channel);
+
+  switch (header.type) {
+    case messages::message_type::ECHO_REQUEST: {
+    } break;
+
+    case messages::message_type::LOGIN_RESPONSE:
+    case messages::message_type::ECHO_RESPONSE:
+      throw exceptions::client_error{
+          "The client should never send this message."};
+
+    case messages::message_type::LOGIN_REQUEST:
+      throw exceptions::client_error{"The client is already logged in."};
+  }
+}
+
+[[nodiscard]] auto
+handle_new_client(client_channel& channel, client_session& session,
+                  std::shared_ptr<auth::client_authenticator> authenticator)
+    -> boost::asio::awaitable<void> {
+  auto header = co_await receive_header(channel);
+
+  if (header.type != messages::message_type::LOGIN_REQUEST) {
+    throw exceptions::client_error{"The client is not logged in."};
+  }
+
+  const auto sequence = header.sequence;
+
+  const auto login = co_await receive_message<messages::login_request>(
+      channel, std::move(header));
+
+  auto authentication_error = std::exception_ptr{};
+
+  try {
+    authenticator->authenticate(login.username, login.password);
+    session.is_logged_in = true;
+  } catch (const std::exception& error) {
+    authentication_error = std::current_exception();
+  }
+
+  if (!authentication_error) {
+    co_await send_message<messages::login_response>(
+        channel, sequence, mori_status::login_status::OK);
+  } else {
+    co_await send_message<messages::login_response>(
+        channel, sequence, mori_status::login_status::FAILED);
+
+    try {
+      std::rethrow_exception(authentication_error);
+    } catch (const std::exception& error) {
+      std::throw_with_nested(
+          exceptions::client_error{"The client login failed."});
+    }
+  }
+}
+
+[[nodiscard]] auto make_client_session(boost::asio::ip::tcp::endpoint endpoint)
+    -> client_session {
+  return {
+      .uuid = boost::uuids::to_string(boost::uuids::random_generator{}()),
+      .address = endpoint.address().to_string(),
+
+      .is_logged_in = false,
+  };
+}
+
+[[nodiscard]] auto
+handle_client(boost::asio::ip::tcp::socket socket,
+              std::shared_ptr<auth::client_authenticator> authenticator)
+    -> boost::asio::awaitable<void> {
+  auto session = make_client_session(socket.remote_endpoint());
+
+  logger()->info("New client connected: {}", session.uuid);
 
   auto channel = client_channel{std::move(socket)};
 
   try {
     for (;;) {
-      co_await receive_message(channel);
+      if (session.is_logged_in) {
+        co_await handle_authenticated_client(channel, session);
+      } else {
+        co_await handle_new_client(channel, session, std::move(authenticator));
+      }
     }
   } catch (const boost::system::system_error& error) {
     if (error.code() != boost::asio::error::eof) {
-      logger()->warn("Dropping client {}. Reason: {}", client_id, error.what());
+      log_client_error(error, session);
     } else {
-      logger()->info("Client {} disconnected.", client_id);
+      logger()->info("Client {} disconnected.", session.uuid);
     }
   } catch (const std::exception& error) {
-    logger()->warn("Dropping client {}. Reason: {}", client_id, error.what());
+    log_client_error(error, session);
   }
 }
 
-[[nodiscard]] auto tcp_listen(boost::asio::io_context& context,
-                              std::uint16_t port)
+[[nodiscard]] auto tcp_listen(echo_server_context ctx)
     -> boost::asio::awaitable<void> {
   auto acceptor = boost::asio::ip::tcp::acceptor{
-      context, {boost::asio::ip::tcp::v4(), port}};
+      ctx.io_context, {boost::asio::ip::tcp::v4(), ctx.port}};
 
   logger()->info("Listening on port: {}", acceptor.local_endpoint().port());
 
   for (;;) {
     auto socket = co_await acceptor.async_accept(boost::asio::use_awaitable);
 
-    boost::asio::co_spawn(context, handle_client(std::move(socket)),
+    boost::asio::co_spawn(ctx.io_context,
+                          handle_client(std::move(socket), ctx.authenticator),
                           [](std::exception_ptr error) {
                             if (error) {
                               std::rethrow_exception(error);
@@ -59,9 +160,10 @@ namespace mori_echo {
   }
 }
 
-auto spawn_server(boost::asio::io_context& context, std::uint16_t port)
-    -> void {
-  boost::asio::co_spawn(context, tcp_listen(context, port),
+auto spawn_server(echo_server_context ctx) -> void {
+  auto io_context = std::ref(ctx.io_context);
+
+  boost::asio::co_spawn(io_context.get(), tcp_listen(std::move(ctx)),
                         [](std::exception_ptr error) {
                           if (error) {
                             std::rethrow_exception(error);

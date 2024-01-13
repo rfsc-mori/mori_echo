@@ -33,8 +33,8 @@ cmake --build build/
 - [x] Provides a TCP server capable of asynchronous processing
 - [x] Validates messages as efficiently as possible
 - [x] Rejects invalid messages and attempts to fail fast
-- [ ] Requires user authentication before echoing
-- [ ] Accepts any combination of username and password
+- [x] Requires user authentication before echoing
+- [x] Accepts any combination of username and password
 - [ ] Keeps a per-session user context, containing the current cipher_key
 - [ ] Decrypts client messages
 - [ ] Echoes the plain (decrypted) message from the echo request
