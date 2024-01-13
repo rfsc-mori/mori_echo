@@ -57,7 +57,7 @@ auto log_client_error(const std::exception& error,
 
   try {
     for (;;) {
-      co_await receive_message(channel);
+      co_await receive_header(channel);
     }
   } catch (const boost::system::system_error& error) {
     if (error.code() != boost::asio::error::eof) {
