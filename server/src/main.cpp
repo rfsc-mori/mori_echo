@@ -26,7 +26,7 @@ auto main() -> int {
   spdlog::info("MoriEcho TCP Echo Server started.");
 
   try {
-    auto io_context = boost::asio::io_context{};
+    auto io_context = boost::asio::io_context{1};
 
     auto signals = boost::asio::signal_set{io_context, SIGINT, SIGTERM};
     signals.async_wait([&](auto, auto) { io_context.stop(); });
