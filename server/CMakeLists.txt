@@ -34,4 +34,12 @@ target_sources(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/echo_server/echo_server.hpp
   PUBLIC
     ${CMAKE_SOURCE_DIR}/include/mori_echo/server_config.hpp
+    ${CMAKE_SOURCE_DIR}/include/message_types/echo_request.hpp
+    ${CMAKE_SOURCE_DIR}/include/message_types/echo_response.hpp
+    ${CMAKE_SOURCE_DIR}/include/message_types/login_request.hpp
+    ${CMAKE_SOURCE_DIR}/include/message_types/login_response.hpp
+    ${CMAKE_SOURCE_DIR}/include/message_types/message_base.hpp
+    ${CMAKE_SOURCE_DIR}/include/message_types/message_header.hpp
+    ${CMAKE_SOURCE_DIR}/include/message_types/message_type.hpp
+    ${CMAKE_SOURCE_DIR}/include/mori_status/login_status.hpp
 )
