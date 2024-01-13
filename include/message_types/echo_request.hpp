@@ -7,7 +7,7 @@
 namespace mori_echo::messages {
 
 struct echo_request : public message_base {
-  std::uint16_t message_size;
+  std::uint16_t message_size = {};
   std::vector<std::byte> cipher_message;
 };
 
