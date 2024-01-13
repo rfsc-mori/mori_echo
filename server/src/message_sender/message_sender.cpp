@@ -43,8 +43,16 @@ auto send_message<messages::login_response>(
   co_await send_header(channel, total_size,
                        messages::message_type::LOGIN_RESPONSE, sequence);
 
-  co_await channel.send_as(
-      static_cast<std::underlying_type_t<decltype(status_code)>>(status_code));
+  const auto login_status_code =
+      static_cast<std::underlying_type_t<decltype(status_code)>>(status_code);
+
+  if constexpr (config::byte_order == config::endian_mode::LITTLE_ENDIAN_MODE) {
+    boost::endian::native_to_little_inplace(login_status_code);
+  } else {
+    boost::endian::native_to_big_inplace(login_status_code);
+  }
+
+  co_await channel.send_as(login_status_code);
 }
 
 } // namespace mori_echo
