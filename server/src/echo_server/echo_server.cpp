@@ -10,6 +10,7 @@
 #include <spdlog/spdlog.h>
 
 #include "client_channel/client_channel.hpp"
+#include "client_crypto/client_crypto.hpp"
 #include "client_session/client_session.hpp"
 #include "exceptions/client_error.hpp"
 #include "message_receiver/message_receiver.hpp"
@@ -78,6 +79,10 @@ handle_new_client(client_channel& channel, client_session& session,
 
   try {
     authenticator->authenticate(login.username, login.password);
+
+    session.username_sum = crypto::calculate_checksum(login.username);
+    session.password_sum = crypto::calculate_checksum(login.password);
+
     session.is_logged_in = true;
   } catch (const std::exception& error) {
     authentication_error = std::current_exception();

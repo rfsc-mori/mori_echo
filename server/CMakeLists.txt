@@ -31,6 +31,7 @@ target_sources(
     src/main.cpp
     src/client_authenticator/allow_all_client_authenticator.cpp
     src/client_channel/client_channel.cpp
+    src/client_crypto/client_crypto.cpp
     src/echo_server/echo_server.cpp
     src/message_receiver/message_receiver.cpp
     src/message_sender/message_sender.cpp
@@ -38,6 +39,7 @@ target_sources(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/client_authenticator/allow_all_client_authenticator.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/client_authenticator/client_authenticator.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/client_channel/client_channel.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/client_crypto/client_crypto.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/client_session/client_session.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/echo_server/echo_server.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/echo_server/echo_server_context.hpp
