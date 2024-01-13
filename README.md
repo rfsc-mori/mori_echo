@@ -31,8 +31,8 @@ cmake --build build/
 ## Server overview:
 
 - [x] Provides a TCP server capable of asynchronous processing
-- [ ] Validates messages as efficiently as possible
-- [ ] Rejects invalid messages and attempts to fail fast
+- [x] Validates messages as efficiently as possible
+- [x] Rejects invalid messages and attempts to fail fast
 - [ ] Requires user authentication before echoing
 - [ ] Accepts any combination of username and password
 - [ ] Keeps a per-session user context, containing the current cipher_key
@@ -57,7 +57,7 @@ cmake --build build/
 
 ## Messages format:
 
-### [ ] Header
+### [x] Header
 
 ```cpp
 namespace mori_echo::messages {
@@ -76,7 +76,7 @@ namespace mori_echo::messages {
 }
 ```
 
-### [ ] Login Request
+### [x] Login Request
 
 ```cpp
 namespace mori_echo::message_limits {
@@ -93,7 +93,7 @@ namespace mori_echo::messages {
 }
 ```
 
-### [ ] Login Response
+### [x] Login Response
 
 ```cpp
 namespace mori_echo::mori_status {
@@ -111,7 +111,7 @@ namespace mori_echo::messages {
 }
 ```
 
-### [ ] Echo Request
+### [x] Echo Request
 
 ```cpp
 namespace mori_echo::messages {
@@ -123,7 +123,7 @@ namespace mori_echo::messages {
 }
 ```
 
-### [ ] Echo Response
+### [x] Echo Response
 
 ```cpp
 namespace mori_echo::messages {
