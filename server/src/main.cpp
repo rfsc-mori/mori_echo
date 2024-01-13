@@ -3,6 +3,7 @@
 #include <exception>
 #include <spdlog/spdlog.h>
 
+#include "client_authenticator/allow_all_client_authenticator.hpp"
 #include "echo_server/echo_server.hpp"
 #include "mori_echo/server_config.hpp"
 
@@ -33,6 +34,9 @@ auto main() -> int {
     mori_echo::spawn_server({
         .io_context = io_context,
         .port = mori_echo::config::tcp_port,
+
+        .authenticator =
+            mori_echo::auth::allow_all_client_authenticator::create(),
     });
 
     io_context.run();

@@ -11,7 +11,9 @@
 
 #include "client_channel/client_channel.hpp"
 #include "client_session/client_session.hpp"
+#include "exceptions/client_error.hpp"
 #include "message_receiver/message_receiver.hpp"
+#include "message_types/login_request.hpp"
 
 namespace mori_echo {
 
@@ -37,6 +39,58 @@ auto log_client_error(const std::exception& error,
   }
 }
 
+[[nodiscard]] auto handle_authenticated_client(client_channel& channel,
+                                               client_session&)
+    -> boost::asio::awaitable<void> {
+  auto header = co_await receive_header(channel);
+
+  switch (header.type) {
+    case messages::message_type::ECHO_REQUEST: {
+    } break;
+
+    case messages::message_type::LOGIN_RESPONSE:
+    case messages::message_type::ECHO_RESPONSE:
+      throw exceptions::client_error{
+          "The client should never send this message."};
+
+    case messages::message_type::LOGIN_REQUEST:
+      throw exceptions::client_error{"The client is already logged in."};
+  }
+}
+
+[[nodiscard]] auto
+handle_new_client(client_channel& channel, client_session& session,
+                  std::shared_ptr<auth::client_authenticator> authenticator)
+    -> boost::asio::awaitable<void> {
+  auto header = co_await receive_header(channel);
+
+  if (header.type != messages::message_type::LOGIN_REQUEST) {
+    throw exceptions::client_error{"The client is not logged in."};
+  }
+
+  const auto login = co_await receive_message<messages::login_request>(
+      channel, std::move(header));
+
+  auto authentication_error = std::exception_ptr{};
+
+  try {
+    authenticator->authenticate(login.username, login.password);
+    session.is_logged_in = true;
+  } catch (const std::exception& error) {
+    authentication_error = std::current_exception();
+  }
+
+  if (!authentication_error) {
+  } else {
+    try {
+      std::rethrow_exception(authentication_error);
+    } catch (const std::exception& error) {
+      std::throw_with_nested(
+          exceptions::client_error{"The client login failed."});
+    }
+  }
+}
+
 [[nodiscard]] auto make_client_session(boost::asio::ip::tcp::endpoint endpoint)
     -> client_session {
   return {
@@ -47,7 +101,9 @@ auto log_client_error(const std::exception& error,
   };
 }
 
-[[nodiscard]] auto handle_client(boost::asio::ip::tcp::socket socket)
+[[nodiscard]] auto
+handle_client(boost::asio::ip::tcp::socket socket,
+              std::shared_ptr<auth::client_authenticator> authenticator)
     -> boost::asio::awaitable<void> {
   auto session = make_client_session(socket.remote_endpoint());
 
@@ -57,7 +113,11 @@ auto log_client_error(const std::exception& error,
 
   try {
     for (;;) {
-      co_await receive_header(channel);
+      if (session.is_logged_in) {
+        co_await handle_authenticated_client(channel, session);
+      } else {
+        co_await handle_new_client(channel, session, std::move(authenticator));
+      }
     }
   } catch (const boost::system::system_error& error) {
     if (error.code() != boost::asio::error::eof) {
@@ -80,7 +140,8 @@ auto log_client_error(const std::exception& error,
   for (;;) {
     auto socket = co_await acceptor.async_accept(boost::asio::use_awaitable);
 
-    boost::asio::co_spawn(ctx.io_context, handle_client(std::move(socket)),
+    boost::asio::co_spawn(ctx.io_context,
+                          handle_client(std::move(socket), ctx.authenticator),
                           [](std::exception_ptr error) {
                             if (error) {
                               std::rethrow_exception(error);
