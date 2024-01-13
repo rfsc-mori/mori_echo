@@ -51,7 +51,11 @@ namespace mori_echo {
     auto socket = co_await acceptor.async_accept(boost::asio::use_awaitable);
 
     boost::asio::co_spawn(context, handle_client(std::move(socket)),
-                          boost::asio::detached);
+                          [](std::exception_ptr error) {
+                            if (error) {
+                              std::rethrow_exception(error);
+                            }
+                          });
   }
 }
 
