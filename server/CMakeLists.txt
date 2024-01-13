@@ -49,3 +49,10 @@ target_sources(
     ${CMAKE_SOURCE_DIR}/include/message_types/message_type.hpp
     ${CMAKE_SOURCE_DIR}/include/mori_status/login_status.hpp
 )
+
+# Warnings
+if(MSVC)
+  target_compile_options(mori_echo_server PRIVATE /W4 /WX)
+else()
+  target_compile_options(mori_echo_server PRIVATE -Wall -Wextra -Wpedantic)
+endif()

@@ -11,12 +11,12 @@
 
 namespace mori_echo {
 
-auto logger() -> std::shared_ptr<spdlog::logger> {
+[[nodiscard]] auto logger() -> std::shared_ptr<spdlog::logger> {
   static auto logger = spdlog::default_logger()->clone("echo_server");
   return logger;
 }
 
-auto handle_client(boost::asio::ip::tcp::socket socket)
+[[nodiscard]] auto handle_client(boost::asio::ip::tcp::socket socket)
     -> boost::asio::awaitable<void> {
   const auto client_id = socket.remote_endpoint().address().to_string();
 
@@ -39,7 +39,8 @@ auto handle_client(boost::asio::ip::tcp::socket socket)
   }
 }
 
-auto tcp_listen(boost::asio::io_context& context, std::uint16_t port)
+[[nodiscard]] auto tcp_listen(boost::asio::io_context& context,
+                              std::uint16_t port)
     -> boost::asio::awaitable<void> {
   auto acceptor = boost::asio::ip::tcp::acceptor{
       context, {boost::asio::ip::tcp::v4(), port}};
@@ -50,7 +51,11 @@ auto tcp_listen(boost::asio::io_context& context, std::uint16_t port)
     auto socket = co_await acceptor.async_accept(boost::asio::use_awaitable);
 
     boost::asio::co_spawn(context, handle_client(std::move(socket)),
-                          boost::asio::detached);
+                          [](std::exception_ptr error) {
+                            if (error) {
+                              std::rethrow_exception(error);
+                            }
+                          });
   }
 }
 
