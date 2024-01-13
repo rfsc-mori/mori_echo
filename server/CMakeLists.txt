@@ -10,6 +10,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Dependencies
 ## Common
 include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 ## Boost
 find_package(Boost 1.81.0 REQUIRED COMPONENTS context system)
@@ -28,8 +29,9 @@ target_sources(
   mori_echo_server
   PRIVATE
     src/main.cpp
-    src/echo_server/echo_server.hpp
     src/echo_server/echo_server.cpp
+  PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/echo_server/echo_server.hpp
   PUBLIC
     ${CMAKE_SOURCE_DIR}/include/mori_echo/server_config.hpp
 )
