@@ -30,4 +30,12 @@ auto client_channel::receive_raw(void* buffer, std::size_t size)
                                    boost::asio::use_awaitable);
 }
 
+auto client_channel::send_raw(void* buffer, std::size_t size)
+    -> boost::asio::awaitable<void> {
+  assert(buffer != nullptr);
+
+  co_await boost::asio::async_write(socket, boost::asio::buffer(buffer, size),
+                                    boost::asio::use_awaitable);
+}
+
 } // namespace mori_echo
