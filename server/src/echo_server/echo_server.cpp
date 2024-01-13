@@ -71,8 +71,6 @@ handle_new_client(client_channel& channel, client_session& session,
     throw exceptions::client_error{"The client is not logged in."};
   }
 
-  const auto sequence = header.sequence;
-
   const auto login = co_await receive_message<messages::login_request>(
       channel, std::move(header));
 
@@ -87,10 +85,10 @@ handle_new_client(client_channel& channel, client_session& session,
 
   if (!authentication_error) {
     co_await send_message<messages::login_response>(
-        channel, sequence, mori_status::login_status::OK);
+        channel, login.header.sequence, mori_status::login_status::OK);
   } else {
     co_await send_message<messages::login_response>(
-        channel, sequence, mori_status::login_status::FAILED);
+        channel, login.header.sequence, mori_status::login_status::FAILED);
 
     try {
       std::rethrow_exception(authentication_error);
