@@ -22,4 +22,6 @@ auto main() -> int {
     spdlog::error("Fatal error: {}", error.what());
     return -1;
   }
+
+  spdlog::info("MoriEcho TCP Echo Server exiting...");
 }
