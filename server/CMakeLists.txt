@@ -21,14 +21,21 @@ find_package(spdlog CONFIG REQUIRED)
 include_directories(${spdlog_INCLUDE_DIRS})
 
 # Targets
+add_library(mori_echo_server_lib)
+
 add_executable(mori_echo_server)
-target_link_libraries(mori_echo_server PRIVATE ${Boost_LIBRARIES} spdlog::spdlog)
+target_link_libraries(mori_echo_server PRIVATE mori_echo_server_lib ${Boost_LIBRARIES} spdlog::spdlog)
 
 # Source
 target_sources(
   mori_echo_server
   PRIVATE
     src/main.cpp
+)
+
+target_sources(
+  mori_echo_server_lib
+  PRIVATE
     src/client_authenticator/allow_all_client_authenticator.cpp
     src/client_channel/client_channel.cpp
     src/client_crypto/client_crypto.cpp
