@@ -13,6 +13,6 @@ inline constexpr auto byte_order = endian_mode::LITTLE_ENDIAN_MODE;
 inline constexpr auto username_size = std::size_t{32};
 inline constexpr auto password_size = std::size_t{32};
 
-inline constexpr auto enable_decryption = false;
+inline constexpr auto enable_decryption = true;
 
 } // namespace mori_echo::config

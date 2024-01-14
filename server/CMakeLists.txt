@@ -40,6 +40,7 @@ target_sources(
     ${CMAKE_CURRENT_SOURCE_DIR}/include/client_authenticator/client_authenticator.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/client_channel/client_channel.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/client_crypto/client_crypto.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/client_crypto/crypto_message_params.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/client_session/client_session.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/echo_server/echo_server.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/include/echo_server/echo_server_context.hpp
