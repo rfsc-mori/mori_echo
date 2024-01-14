@@ -42,6 +42,12 @@ ctest --preset tests
 ctest --preset tests -R business_rules
 ```
 
+### Only concurrency tests:
+
+```sh
+ctest --preset tests -R concurrency
+```
+
 ## Server overview:
 
 - [x] Provides a TCP server capable of asynchronous processing
