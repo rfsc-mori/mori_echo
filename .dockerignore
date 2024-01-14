@@ -1,0 +1,11 @@
+.cache/
+.devcontainer/
+.git/
+build/
+.clang-format
+.dockerignore
+.editorconfig
+.gitignore
+Dockerfile
+LICENSE.MIT
+README.md

@@ -10,27 +10,51 @@ This is a TCP Echo Server assignment.
 ## Development environment:
 
 - [x] Uses my personal DevContainer template for VSCode
-- [ ] Provides Docker environments for building, testing and running
+- [x] Provides Docker environment for building, testing and running
+
+### DevContainer:
+
+- Open this project in VSCode while having the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) installed.
+- Re-open the folder in container using the extension.
+
+### Manual:
+
+Dependencies:
+
+- GCC >=12 (build-essential)
+- CMake >=3.25
+- Ninja
+- vcpkg ($VCPKG_ROOT must be set)
 
 ## Building
 
-### Debug:
+### Docker:
+
+```sh
+docker compose up
+```
+
+### Manually:
+
+#### Debug:
 
 ```sh
 cmake -B build/ --preset debug
 cmake --build build/
 ```
 
-### Release:
+#### Release:
 
 ```sh
 cmake -B build/ --preset release
 cmake --build build/
 ```
 
-## Testing
+# Testing
 
-### Everything:
+If you decided to use `docker compose up`, the tests are already executed during the build process.
+
+## Everything:
 
 ```sh
 ctest --preset tests
