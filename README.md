@@ -2,10 +2,14 @@
 
 This is a TCP Echo Server assignment.
 
-## Main dependencies:
+## Core dependencies:
 
-- C++20
-- boost.asio with coroutines support
+- C++20 and a compiler that implements [P0912R5](https://wg21.link/P0912R5)
+- Boost.Asio with coroutines support
+- Boost.Endian to handle protocol endianness
+- Boost.Uuid to identify client sessions
+- Boost.Test to test business rules and concurrency
+- spdlog to provide detailed logging
 
 ## Development environment:
 
@@ -19,7 +23,7 @@ This is a TCP Echo Server assignment.
 
 ### Manual:
 
-Dependencies:
+Build dependencies:
 
 - GCC >=12 (build-essential)
 - CMake >=3.25
