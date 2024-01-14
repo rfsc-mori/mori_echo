@@ -34,13 +34,13 @@ auto main() -> int {
 
     constexpr auto tcp_port = std::uint16_t{31216};
 
-    mori_echo::spawn_server({
-        .io_context = io_context,
-        .port = tcp_port,
-
-        .authenticator =
-            mori_echo::auth::allow_all_client_authenticator::create(),
-    });
+    mori_echo::spawn_server(
+        io_context,
+        {
+            .port = tcp_port,
+            .authenticator =
+                mori_echo::auth::allow_all_client_authenticator::create(),
+        });
 
     io_context.run();
   } catch (const std::exception& error) {

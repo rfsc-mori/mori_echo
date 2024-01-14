@@ -7,8 +7,7 @@
 
 namespace mori_echo {
 
-struct echo_server_context {
-  boost::asio::io_context& io_context;
+struct echo_server_config {
   std::uint16_t port = {};
 
   std::shared_ptr<auth::client_authenticator> authenticator;

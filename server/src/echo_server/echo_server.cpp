@@ -6,7 +6,6 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <exception>
-#include <functional>
 #include <spdlog/fmt/bin_to_hex.h>
 #include <spdlog/spdlog.h>
 
@@ -106,9 +105,9 @@ auto log_encrypted_message(const client_session& session,
   }
 }
 
-[[nodiscard]] auto
-handle_new_client(client_channel& channel, client_session& session,
-                  std::shared_ptr<auth::client_authenticator> authenticator)
+[[nodiscard]] auto handle_new_client(client_channel& channel,
+                                     client_session& session,
+                                     const echo_server_config& cfg)
     -> boost::asio::awaitable<void> {
   auto header = co_await receive_header(channel);
 
@@ -122,7 +121,7 @@ handle_new_client(client_channel& channel, client_session& session,
   auto authentication_error = std::exception_ptr{};
 
   try {
-    authenticator->authenticate(login.username, login.password);
+    cfg.authenticator->authenticate(login.username, login.password);
 
     session.username_sum = crypto::calculate_checksum(login.username);
     session.password_sum = crypto::calculate_checksum(login.password);
@@ -158,9 +157,8 @@ handle_new_client(client_channel& channel, client_session& session,
   };
 }
 
-[[nodiscard]] auto
-handle_client(boost::asio::ip::tcp::socket socket,
-              std::shared_ptr<auth::client_authenticator> authenticator)
+[[nodiscard]] auto handle_client(boost::asio::ip::tcp::socket socket,
+                                 echo_server_config cfg)
     -> boost::asio::awaitable<void> {
   auto session = make_client_session(socket.remote_endpoint());
 
@@ -173,7 +171,7 @@ handle_client(boost::asio::ip::tcp::socket socket,
       if (session.is_logged_in) {
         co_await handle_authenticated_client(channel, session);
       } else {
-        co_await handle_new_client(channel, session, std::move(authenticator));
+        co_await handle_new_client(channel, session, cfg);
       }
     }
   } catch (const boost::system::system_error& error) {
@@ -187,18 +185,18 @@ handle_client(boost::asio::ip::tcp::socket socket,
   }
 }
 
-[[nodiscard]] auto tcp_listen(echo_server_context ctx)
+[[nodiscard]] auto tcp_listen(boost::asio::io_context& io_context,
+                              echo_server_config cfg)
     -> boost::asio::awaitable<void> {
   auto acceptor = boost::asio::ip::tcp::acceptor{
-      ctx.io_context, {boost::asio::ip::tcp::v4(), ctx.port}};
+      io_context, {boost::asio::ip::tcp::v4(), cfg.port}};
 
   logger()->info("Listening on port: {}", acceptor.local_endpoint().port());
 
   for (;;) {
     auto socket = co_await acceptor.async_accept(boost::asio::use_awaitable);
 
-    boost::asio::co_spawn(ctx.io_context,
-                          handle_client(std::move(socket), ctx.authenticator),
+    boost::asio::co_spawn(io_context, handle_client(std::move(socket), cfg),
                           [](std::exception_ptr error) {
                             if (error) {
                               std::rethrow_exception(error);
@@ -207,10 +205,9 @@ handle_client(boost::asio::ip::tcp::socket socket,
   }
 }
 
-auto spawn_server(echo_server_context ctx) -> void {
-  auto io_context = std::ref(ctx.io_context);
-
-  boost::asio::co_spawn(io_context.get(), tcp_listen(std::move(ctx)),
+auto spawn_server(boost::asio::io_context& io_context, echo_server_config cfg)
+    -> void {
+  boost::asio::co_spawn(io_context, tcp_listen(io_context, std::move(cfg)),
                         [](std::exception_ptr error) {
                           if (error) {
                             std::rethrow_exception(error);
