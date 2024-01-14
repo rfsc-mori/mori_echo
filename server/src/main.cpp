@@ -38,6 +38,7 @@ auto main() -> int {
         io_context,
         {
             .port = tcp_port,
+            .enable_decryption = true,
             .authenticator =
                 mori_echo::auth::allow_all_client_authenticator::create(),
         });

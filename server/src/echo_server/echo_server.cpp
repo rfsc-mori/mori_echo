@@ -19,7 +19,6 @@
 #include "message_types/echo_response.hpp"
 #include "message_types/login_request.hpp"
 #include "message_types/login_response.hpp"
-#include "mori_echo/server_config.hpp"
 #include "mori_status/login_status.hpp"
 
 namespace mori_echo {
@@ -65,7 +64,8 @@ auto log_encrypted_message(const client_session& session,
 }
 
 [[nodiscard]] auto handle_authenticated_client(client_channel& channel,
-                                               client_session& session)
+                                               client_session& session,
+                                               const echo_server_config& cfg)
     -> boost::asio::awaitable<void> {
   auto header = co_await receive_header(channel);
 
@@ -74,7 +74,7 @@ auto log_encrypted_message(const client_session& session,
       const auto echo = co_await receive_message<messages::echo_request>(
           channel, std::move(header));
 
-      if constexpr (config::enable_decryption) {
+      if (cfg.enable_decryption) {
         const auto plain_message = crypto::decrypt(
             {
                 .username_sum = session.username_sum,
@@ -169,7 +169,7 @@ auto log_encrypted_message(const client_session& session,
   try {
     for (;;) {
       if (session.is_logged_in) {
-        co_await handle_authenticated_client(channel, session);
+        co_await handle_authenticated_client(channel, session, cfg);
       } else {
         co_await handle_new_client(channel, session, cfg);
       }

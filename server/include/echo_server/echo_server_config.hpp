@@ -9,6 +9,7 @@ namespace mori_echo {
 
 struct echo_server_config {
   std::uint16_t port = {};
+  bool enable_decryption = true;
 
   std::shared_ptr<auth::client_authenticator> authenticator;
 };
