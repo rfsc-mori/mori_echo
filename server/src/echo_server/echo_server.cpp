@@ -15,8 +15,11 @@
 #include "exceptions/client_error.hpp"
 #include "message_receiver/message_receiver.hpp"
 #include "message_sender/message_sender.hpp"
+#include "message_types/echo_request.hpp"
+#include "message_types/echo_response.hpp"
 #include "message_types/login_request.hpp"
 #include "message_types/login_response.hpp"
+#include "mori_echo/server_config.hpp"
 #include "mori_status/login_status.hpp"
 
 namespace mori_echo {
@@ -50,6 +53,14 @@ auto log_client_error(const std::exception& error,
 
   switch (header.type) {
     case messages::message_type::ECHO_REQUEST: {
+      const auto echo = co_await receive_message<messages::echo_request>(
+          channel, std::move(header));
+
+      if constexpr (config::enable_decryption) {
+      } else {
+        co_await send_message<messages::echo_response>{}(
+            channel, echo.header.sequence, echo.cipher_message);
+      }
     } break;
 
     case messages::message_type::LOGIN_RESPONSE:
@@ -89,10 +100,10 @@ handle_new_client(client_channel& channel, client_session& session,
   }
 
   if (!authentication_error) {
-    co_await send_message<messages::login_response>(
+    co_await send_message<messages::login_response>{}(
         channel, login.header.sequence, mori_status::login_status::OK);
   } else {
-    co_await send_message<messages::login_response>(
+    co_await send_message<messages::login_response>{}(
         channel, login.header.sequence, mori_status::login_status::FAILED);
 
     try {
