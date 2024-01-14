@@ -143,7 +143,7 @@ https://github.com/devcontainers/images/blob/main/src/cpp/README.md
 This project uses the spdlog logging library:  
 https://github.com/gabime/spdlog/blob/v1.x/LICENSE
 
-This project uses libraries libraries from Boost:  
+This project uses libraries from Boost:  
 https://www.boost.org/LICENSE_1_0.txt
 
 # License
