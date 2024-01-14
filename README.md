@@ -190,6 +190,9 @@ https://github.com/gabime/spdlog/blob/v1.x/LICENSE
 This project uses libraries from Boost:  
 https://www.boost.org/LICENSE_1_0.txt
 
+This project uses vcpkg to install dependencies:  
+https://github.com/microsoft/vcpkg/blob/master/LICENSE.txt
+
 # License
 
 MIT
