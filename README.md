@@ -37,7 +37,7 @@ cmake --build build/
 - [x] Accepts any combination of username and password
 - [x] Keeps a per-session user context, containing the username and password checksums
 - [x] Echoes the message from the request
-- [ ] Decrypts client messages
+- [x] Decrypts client messages
 
 ## Reference client implementation:
 

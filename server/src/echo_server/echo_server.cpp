@@ -47,7 +47,7 @@ auto log_client_error(const std::exception& error,
 }
 
 [[nodiscard]] auto handle_authenticated_client(client_channel& channel,
-                                               client_session&)
+                                               client_session& session)
     -> boost::asio::awaitable<void> {
   auto header = co_await receive_header(channel);
 
@@ -57,6 +57,16 @@ auto log_client_error(const std::exception& error,
           channel, std::move(header));
 
       if constexpr (config::enable_decryption) {
+        const auto plain_message = crypto::decrypt(
+            {
+                .username_sum = session.username_sum,
+                .password_sum = session.password_sum,
+                .sequence = echo.header.sequence,
+            },
+            std::move(echo.cipher_message));
+
+        co_await send_message<messages::echo_response>{}(
+            channel, echo.header.sequence, plain_message);
       } else {
         co_await send_message<messages::echo_response>{}(
             channel, echo.header.sequence, echo.cipher_message);
