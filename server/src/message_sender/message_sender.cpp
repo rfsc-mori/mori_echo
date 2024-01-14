@@ -3,6 +3,8 @@
 #include <boost/endian/conversion.hpp>
 #include <cstdint>
 
+#include "exceptions/server_error.hpp"
+#include "message_types/echo_response.hpp"
 #include "message_types/login_response.hpp"
 #include "mori_echo/server_config.hpp"
 #include "mori_status/login_status.hpp"
@@ -52,6 +54,41 @@ auto send_message<messages::login_response>::operator()(
   }
 
   co_await channel.send_as(login_status_code);
+}
+
+auto send_message<messages::echo_response>::operator()(
+    client_channel& channel, std::uint8_t sequence,
+    const std::vector<std::byte>& message) -> boost::asio::awaitable<void> {
+  constexpr auto max_message_size = std::numeric_limits<std::uint16_t>::max() -
+                                    sizeof(std::uint16_t) - header_size;
+
+  if (message.size() > max_message_size) {
+    throw exceptions::server_error{"Message too long."};
+  }
+
+  auto total_size = static_cast<std::uint16_t>(
+      header_size + sizeof(std::uint16_t) + message.size());
+
+  if constexpr (config::byte_order == config::endian_mode::LITTLE_ENDIAN_MODE) {
+    boost::endian::native_to_little_inplace(total_size);
+  } else {
+    boost::endian::native_to_big_inplace(total_size);
+  }
+
+  co_await send_header(channel, total_size,
+                       messages::message_type::ECHO_RESPONSE, sequence);
+
+  auto message_size = static_cast<std::uint16_t>(message.size());
+
+  if constexpr (config::byte_order == config::endian_mode::LITTLE_ENDIAN_MODE) {
+    boost::endian::native_to_little_inplace(message_size);
+  } else {
+    boost::endian::native_to_big_inplace(message_size);
+  }
+
+  co_await channel.send_as(message_size);
+
+  co_await channel.send(message);
 }
 
 } // namespace mori_echo

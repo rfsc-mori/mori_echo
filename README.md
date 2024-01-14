@@ -36,8 +36,8 @@ cmake --build build/
 - [x] Requires user authentication before echoing
 - [x] Accepts any combination of username and password
 - [x] Keeps a per-session user context, containing the username and password checksums
+- [x] Echoes the message from the request
 - [ ] Decrypts client messages
-- [ ] Echoes the plain (decrypted) message from the echo request
 
 ## Reference client implementation:
 
