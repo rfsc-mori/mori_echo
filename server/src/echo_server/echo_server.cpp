@@ -25,7 +25,7 @@
 
 namespace mori_echo {
 
-[[nodiscard]] auto logger() -> std::shared_ptr<spdlog::logger> {
+[[nodiscard]] inline auto logger() -> std::shared_ptr<spdlog::logger> {
   static auto logger = spdlog::default_logger()->clone("echo_server");
   return logger;
 }

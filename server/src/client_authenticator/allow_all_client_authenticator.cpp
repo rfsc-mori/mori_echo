@@ -4,7 +4,7 @@
 
 namespace mori_echo::auth {
 
-[[nodiscard]] auto logger() -> std::shared_ptr<spdlog::logger> {
+[[nodiscard]] inline auto logger() -> std::shared_ptr<spdlog::logger> {
   static auto logger =
       spdlog::default_logger()->clone("allow_all_client_authenticator");
   return logger;
