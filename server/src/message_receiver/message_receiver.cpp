@@ -21,14 +21,14 @@ inline constexpr auto header_size =
 
 [[nodiscard]] auto receive_header(client_channel& channel)
     -> boost::asio::awaitable<messages::message_header> {
-  constexpr auto min_message_size = std::size_t{header_size + 1};
+  constexpr auto min_message_size = header_size + 1;
 
   constexpr auto max_message_size = std::min(
-      static_cast<std::size_t>(
+      std::size_t{
           std::numeric_limits<decltype(std::declval<messages::message_header>()
-                                           .total_size)>::max()),
-      static_cast<std::size_t>(header_size + sizeof(std::uint16_t) +
-                               std::numeric_limits<std::uint16_t>::max()));
+                                           .total_size)>::max()},
+      header_size + sizeof(std::uint16_t) +
+          std::numeric_limits<std::uint16_t>::max());
 
   auto total_size = co_await channel.receive_as<std::uint16_t>();
 
@@ -73,9 +73,9 @@ auto receive_message<messages::login_request>(client_channel& channel,
                                               messages::message_header header)
     -> boost::asio::awaitable<messages::login_request> {
   constexpr auto min_message_size =
-      std::size_t{header_size + config::username_size + config::password_size};
+      header_size + config::username_size + config::password_size;
 
-  constexpr auto max_message_size = std::size_t{min_message_size};
+  constexpr auto max_message_size = min_message_size;
 
   if (header.type != messages::message_type::LOGIN_REQUEST) {
     throw exceptions::client_error{"Wrong message type."};
@@ -92,6 +92,9 @@ auto receive_message<messages::login_request>(client_channel& channel,
 
   assert(username.size() == config::username_size);
   assert(password.size() == config::password_size);
+
+  static_assert(config::username_size > 0);
+  static_assert(config::password_size > 0);
 
   // For ASCIIZ of size X, the max length is X - 1. Force null-terminator.
   username[config::username_size - 1] = std::byte{'\0'};
@@ -114,15 +117,13 @@ template <>
 auto receive_message<messages::echo_request>(client_channel& channel,
                                              messages::message_header header)
     -> boost::asio::awaitable<messages::echo_request> {
-  constexpr auto min_message_size =
-      std::size_t{header_size + sizeof(std::uint16_t)};
+  constexpr auto min_message_size = header_size + sizeof(std::uint16_t);
 
   constexpr auto max_message_size = std::min(
-      static_cast<std::size_t>(
+      std::size_t{
           std::numeric_limits<decltype(std::declval<messages::message_header>()
-                                           .total_size)>::max()),
-      static_cast<std::size_t>(min_message_size +
-                               std::numeric_limits<std::uint16_t>::max()));
+                                           .total_size)>::max()},
+      min_message_size + std::numeric_limits<std::uint16_t>::max());
 
   if (header.type != messages::message_type::ECHO_REQUEST) {
     throw exceptions::client_error{"Wrong message type."};
@@ -142,12 +143,11 @@ auto receive_message<messages::echo_request>(client_channel& channel,
     boost::endian::big_to_native_inplace(message_size);
   }
 
-  const auto final_message_size = min_message_size + message_size;
+  const auto final_message_size =
+      static_cast<std::uint16_t>(min_message_size + message_size);
 
-  if (header.total_size < final_message_size) {
-    throw exceptions::client_error{"Message too short."};
-  } else if (header.total_size > final_message_size) {
-    throw exceptions::client_error{"Message too long."};
+  if (header.total_size != final_message_size) {
+    throw exceptions::client_error{"Message size mismatch."};
   }
 
   auto cipher_message = co_await channel.receive(message_size);
