@@ -28,8 +28,7 @@ send_header(client_channel& channel, std::uint16_t total_size,
   co_await channel.send_as(sequence);
 }
 
-template <>
-auto send_message<messages::login_response>(
+auto send_message<messages::login_response>::operator()(
     client_channel& channel, std::uint8_t sequence,
     mori_status::login_status status_code) -> boost::asio::awaitable<void> {
   auto total_size = std::uint16_t{header_size + sizeof(status_code)};

@@ -89,10 +89,10 @@ handle_new_client(client_channel& channel, client_session& session,
   }
 
   if (!authentication_error) {
-    co_await send_message<messages::login_response>(
+    co_await send_message<messages::login_response>{}(
         channel, login.header.sequence, mori_status::login_status::OK);
   } else {
-    co_await send_message<messages::login_response>(
+    co_await send_message<messages::login_response>{}(
         channel, login.header.sequence, mori_status::login_status::FAILED);
 
     try {
