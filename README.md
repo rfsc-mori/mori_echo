@@ -1,6 +1,42 @@
 # MoriEcho
 
-This is a TCP Echo Server assignment.
+A TCP Echo Server with authentication and encryption support.
+
+## Server execution flow:
+
+1. A new client connects via TCP/IPv4 to port `31216` and is assigned a session.
+2. The client should send a `login_request` message with any username and password combination.
+3. The server will reply with a `login_response` with status `OK`.
+4. The client can now send `echo_request` messages with an encrypted `cipher_message`.
+5. The server will reply with `echo_response` messages, containing the decrypted `plain_message`.
+6. The client can disconnect at any time, and their session will destroyed.
+7. To close the server from a terminal, please send a `SIGINT` (Ctrl+C).
+
+For more details about the cipher algorithm, please check [client_crypto.cpp](server/src/client_crypto/client_crypto.cpp).
+
+For a reference implementation of a client software, please check the [business rules test](server/tests/src/business_rules.cpp).
+
+### Concurrency
+
+A single thread is spawned to run the client coroutine tasks concurrently.
+
+This supports multiple concurrent clients with IO multiplexing.
+
+For further details, please check the [concurrency test](server/tests/src/concurrency.cpp), which runs a complete business rule test over 500 simultaneous connections.
+
+### Parallelism
+
+It is possible to implement parallelism in combination with concurrency by using a `thread_pool` instead of `io_context` in [main.cpp](server/src/main.cpp).
+
+## Static configuration:
+
+You can edit the [server_config.hpp](include/mori_echo/server_config.hpp) to change build-time configurations.
+
+### Endianness
+
+The default byte order for this network protocol w.r.t. binary serialization and deserialization of integers of size higher than 1 is assumed to be little endian.
+
+To change this behavior please set `byte_order` to either `LITTLE_ENDIAN_MODE` or `BIG_ENDIAN_MODE`.
 
 ## Core dependencies:
 
