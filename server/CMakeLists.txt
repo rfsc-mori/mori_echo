@@ -13,7 +13,7 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 ## Boost
-find_package(Boost 1.81.0 REQUIRED COMPONENTS context system)
+find_package(Boost 1.81.0 REQUIRED COMPONENTS context system unit_test_framework)
 include_directories(${Boost_INCLUDE_DIRS})
 
 ## Spdlog
@@ -59,3 +59,7 @@ target_sources(
     ${CMAKE_SOURCE_DIR}/include/message_types/message_type.hpp
     ${CMAKE_SOURCE_DIR}/include/mori_status/login_status.hpp
 )
+
+if(BUILD_TESTING)
+  add_subdirectory(tests)
+endif()

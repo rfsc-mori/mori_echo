@@ -28,6 +28,12 @@ cmake -B build/ --preset release
 cmake --build build/
 ```
 
+## Testing
+
+```sh
+ctest --preset tests
+```
+
 ## Server overview:
 
 - [x] Provides a TCP server capable of asynchronous processing

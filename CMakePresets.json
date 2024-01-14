@@ -48,5 +48,17 @@
         "all"
       ]
     }
+  ],
+  "testPresets": [
+    {
+      "name": "tests",
+      "displayName": "Run tests",
+      "description": "Run tests",
+      "configurePreset": "debug",
+      "output": {
+        "shortProgress": true,
+        "verbosity": "verbose"
+      }
+    }
   ]
 }
