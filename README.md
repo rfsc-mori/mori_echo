@@ -83,22 +83,6 @@ ctest --preset tests -R concurrency
 - [x] Echoes the message from the request
 - [x] Decrypts client messages
 
-## Reference client implementation:
-
-- [ ] Accepts a command sequence from execution arguments
-- [ ] Authenticates using the parameters from execution arguments
-- [ ] Logs all sent and received messages
-- [ ] Validates the received messages
-- [ ] Exits with return code 1 if validation fails
-- [ ] Execute all specified commands, sequentially
-- [ ] Exits with return code 0 if no errors occurs
-
-### Command line example:
-
-```
-./build/reference_client -u test -p test first_message second_message
-```
-
 ## Messages format:
 
 ### Header
