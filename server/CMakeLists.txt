@@ -21,7 +21,7 @@ find_package(spdlog CONFIG REQUIRED)
 include_directories(${spdlog_INCLUDE_DIRS})
 
 # Targets
-add_executable(mori_echo_server ${SOURCES})
+add_executable(mori_echo_server)
 target_link_libraries(mori_echo_server PRIVATE ${Boost_LIBRARIES} spdlog::spdlog)
 
 # Source
