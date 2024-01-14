@@ -30,8 +30,16 @@ cmake --build build/
 
 ## Testing
 
+### Everything:
+
 ```sh
 ctest --preset tests
+```
+
+### Only business rules:
+
+```sh
+ctest --preset tests -R business_rules
 ```
 
 ## Server overview:
