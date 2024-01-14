@@ -55,7 +55,7 @@ To change this behavior please set `byte_order` to either `LITTLE_ENDIAN_MODE` o
 ### DevContainer:
 
 - Open this project in VSCode while having the [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) installed.
-- Re-open the folder in container using the extension.
+- Reopen the folder in container using the extension.
 
 ### Manual:
 
@@ -88,6 +88,12 @@ cmake --build build/
 ```sh
 cmake -B build/ --preset release
 cmake --build build/
+```
+
+#### Running:
+
+```sh
+./build/server/mori_echo_server
 ```
 
 # Testing
