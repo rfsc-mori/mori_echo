@@ -28,6 +28,26 @@ cmake -B build/ --preset release
 cmake --build build/
 ```
 
+## Testing
+
+### Everything:
+
+```sh
+ctest --preset tests
+```
+
+### Only business rules:
+
+```sh
+ctest --preset tests -R business_rules
+```
+
+### Only concurrency tests:
+
+```sh
+ctest --preset tests -R concurrency
+```
+
 ## Server overview:
 
 - [x] Provides a TCP server capable of asynchronous processing
