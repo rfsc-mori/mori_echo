@@ -23,6 +23,8 @@ auto log_fatal_error(const std::exception& error, int level = 0) -> void {
 }
 
 auto main() -> int {
+  spdlog::set_level(spdlog::level::debug);
+
   spdlog::info("MoriEcho TCP Echo Server started.");
 
   try {

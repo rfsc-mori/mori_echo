@@ -7,6 +7,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <exception>
 #include <functional>
+#include <spdlog/fmt/bin_to_hex.h>
 #include <spdlog/spdlog.h>
 
 #include "client_channel/client_channel.hpp"
@@ -46,6 +47,24 @@ auto log_client_error(const std::exception& error,
   }
 }
 
+auto log_decrypted_message(const client_session& session,
+                           const std::vector<std::byte>& plain) -> void {
+  auto text = std::vector<char>{};
+  text.reserve(plain.size());
+
+  std::transform(plain.begin(), plain.end(), std::back_inserter(text),
+                 [](std::byte each) { return static_cast<char>(each); });
+
+  logger()->debug("Echoing decrypted message from {}: {}", session.uuid,
+                  fmt::join(text, ""));
+}
+
+auto log_encrypted_message(const client_session& session,
+                           const std::vector<std::byte>& encrypted) -> void {
+  logger()->debug("Echoing encrypted message from {}: {:X}", session.uuid,
+                  spdlog::to_hex(encrypted));
+}
+
 [[nodiscard]] auto handle_authenticated_client(client_channel& channel,
                                                client_session& session)
     -> boost::asio::awaitable<void> {
@@ -65,9 +84,13 @@ auto log_client_error(const std::exception& error,
             },
             std::move(echo.cipher_message));
 
+        log_decrypted_message(session, plain_message);
+
         co_await send_message<messages::echo_response>{}(
             channel, echo.header.sequence, plain_message);
       } else {
+        log_encrypted_message(session, echo.cipher_message);
+
         co_await send_message<messages::echo_response>{}(
             channel, echo.header.sequence, echo.cipher_message);
       }
