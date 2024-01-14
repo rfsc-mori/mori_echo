@@ -21,7 +21,7 @@ find_package(spdlog CONFIG REQUIRED)
 include_directories(${spdlog_INCLUDE_DIRS})
 
 # Targets
-add_executable(mori_echo_server ${SOURCES})
+add_executable(mori_echo_server)
 target_link_libraries(mori_echo_server PRIVATE ${Boost_LIBRARIES} spdlog::spdlog)
 
 # Source
@@ -59,10 +59,4 @@ target_sources(
     ${CMAKE_SOURCE_DIR}/include/message_types/message_type.hpp
     ${CMAKE_SOURCE_DIR}/include/mori_status/login_status.hpp
 )
-
-# Warnings
-if(MSVC)
-  target_compile_options(mori_echo_server PRIVATE /W4 /WX)
-else()
-  target_compile_options(mori_echo_server PRIVATE -Wall -Wextra -Wpedantic)
 endif()

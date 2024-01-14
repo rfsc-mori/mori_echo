@@ -5,7 +5,6 @@
 
 #include "client_authenticator/allow_all_client_authenticator.hpp"
 #include "echo_server/echo_server.hpp"
-#include "mori_echo/server_config.hpp"
 
 auto log_fatal_error(const std::exception& error, int level = 0) -> void {
   if (level == 0) {
@@ -33,13 +32,16 @@ auto main() -> int {
     auto signals = boost::asio::signal_set{io_context, SIGINT, SIGTERM};
     signals.async_wait([&](auto, auto) { io_context.stop(); });
 
-    mori_echo::spawn_server({
-        .io_context = io_context,
-        .port = mori_echo::config::tcp_port,
+    constexpr auto tcp_port = std::uint16_t{31216};
 
-        .authenticator =
-            mori_echo::auth::allow_all_client_authenticator::create(),
-    });
+    mori_echo::spawn_server(
+        io_context,
+        {
+            .port = tcp_port,
+            .enable_decryption = true,
+            .authenticator =
+                mori_echo::auth::allow_all_client_authenticator::create(),
+        });
 
     io_context.run();
   } catch (const std::exception& error) {
