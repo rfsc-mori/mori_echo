@@ -1,7 +1,7 @@
 #pragma once
 
-#include <boost/asio/io_context.hpp>
 #include <cstdint>
+#include <memory>
 
 #include "client_authenticator/client_authenticator.hpp"
 

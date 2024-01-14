@@ -184,18 +184,18 @@ auto log_encrypted_message(const client_session& session,
   }
 }
 
-[[nodiscard]] auto tcp_listen(boost::asio::io_context& io_context,
+[[nodiscard]] auto tcp_listen(boost::asio::any_io_executor executor,
                               echo_server_config cfg)
     -> boost::asio::awaitable<void> {
   auto acceptor = boost::asio::ip::tcp::acceptor{
-      io_context, {boost::asio::ip::tcp::v4(), cfg.port}};
+      executor, {boost::asio::ip::tcp::v4(), cfg.port}};
 
   logger()->info("Listening on port: {}", acceptor.local_endpoint().port());
 
   for (;;) {
     auto socket = co_await acceptor.async_accept(boost::asio::use_awaitable);
 
-    boost::asio::co_spawn(io_context, handle_client(std::move(socket), cfg),
+    boost::asio::co_spawn(executor, handle_client(std::move(socket), cfg),
                           [](std::exception_ptr error) {
                             if (error) {
                               std::rethrow_exception(error);
@@ -204,9 +204,9 @@ auto log_encrypted_message(const client_session& session,
   }
 }
 
-auto spawn_server(boost::asio::io_context& io_context, echo_server_config cfg)
+auto spawn_server(boost::asio::any_io_executor executor, echo_server_config cfg)
     -> void {
-  boost::asio::co_spawn(io_context, tcp_listen(io_context, std::move(cfg)),
+  boost::asio::co_spawn(executor, tcp_listen(executor, std::move(cfg)),
                         [](std::exception_ptr error) {
                           if (error) {
                             std::rethrow_exception(error);

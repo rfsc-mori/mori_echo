@@ -35,7 +35,7 @@ auto main() -> int {
     constexpr auto tcp_port = std::uint16_t{31216};
 
     mori_echo::spawn_server(
-        io_context,
+        io_context.get_executor(),
         {
             .port = tcp_port,
             .enable_decryption = true,
