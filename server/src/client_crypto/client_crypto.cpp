@@ -20,6 +20,10 @@ auto calculate_next_key(std::uint32_t key) -> std::uint32_t {
   return (key * 1103515245 + 12345) % 0x7FFFFFFF;
 }
 
+auto calculate_cipher_key(std::uint8_t key) -> std::uint8_t {
+  return static_cast<std::uint8_t>(key % 256);
+}
+
 auto decrypt(crypto_message_params args, std::vector<std::byte> message)
     -> std::vector<std::byte> {
   auto key = calculate_initial_key(std::move(args));
@@ -27,7 +31,7 @@ auto decrypt(crypto_message_params args, std::vector<std::byte> message)
   for (auto& each : message) {
     key = calculate_next_key(key);
 
-    const auto cipher_key = static_cast<std::uint8_t>(key % 256);
+    const auto cipher_key = calculate_cipher_key(key);
 
     const auto decrypted =
         static_cast<std::uint8_t>(static_cast<std::uint8_t>(each) ^ cipher_key);

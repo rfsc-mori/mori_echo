@@ -52,6 +52,7 @@ RUN cmake --build build/
 # Run tests
 RUN ctest --preset tests -R business_rules
 RUN ctest --preset tests -R concurrency
+RUN ctest --preset tests -R cipher
 
 FROM gcc:12
 
