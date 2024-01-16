@@ -12,7 +12,7 @@ A TCP Echo Server with authentication and encryption support.
 6. The client can disconnect at any time, and their session will destroyed.
 7. To close the server from a terminal, please send a `SIGINT` (Ctrl+C).
 
-For more details about the cipher algorithm, please check [client_crypto.cpp](server/src/client_crypto/client_crypto.cpp).
+For more details about the cipher algorithm, please check [client_crypto.cpp](server/src/client_crypto/client_crypto.cpp) and [the cipher test](server/tests/src/cipher.cpp).
 
 For a reference implementation of a client software, please check the [business rules test](server/tests/src/business_rules.cpp).
 
@@ -116,6 +116,12 @@ ctest --preset tests -R business_rules
 
 ```sh
 ctest --preset tests -R concurrency
+```
+
+### Only cipher tests:
+
+```sh
+ctest --preset tests -R cipher
 ```
 
 ## Server overview:
