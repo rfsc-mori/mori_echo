@@ -62,4 +62,10 @@ WORKDIR /opt/mori_echo
 
 COPY --from=build /usr/src/mori_echo/build/server/mori_echo_server .
 
+# Add non-root user
+RUN useradd -ms /bin/bash rfsc
+
+# Switch to non-root user
+USER rfsc
+
 ENTRYPOINT [ "./mori_echo_server" ]
