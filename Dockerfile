@@ -56,6 +56,8 @@ RUN ctest --preset tests -R cipher
 
 FROM gcc:12
 
+LABEL org.opencontainers.image.source=https://github.com/rfsc-mori/mori_echo
+
 WORKDIR /opt/mori_echo
 
 COPY --from=build /usr/src/mori_echo/build/server/mori_echo_server .
