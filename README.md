@@ -100,8 +100,16 @@ docker compose up
 
 ### Docker, from GitHub Registry:
 
+#### Little-Endian version:
+
 ```sh
-docker run --rm -p 31216:31216 ghcr.io/rfsc-mori/mori_echo
+docker run --rm -p 31216:31216 ghcr.io/rfsc-mori/mori_echo:little_endian
+```
+
+#### Big-Endian version:
+
+```sh
+docker run --rm -p 31216:31216 ghcr.io/rfsc-mori/mori_echo:big_endian
 ```
 
 # Testing
