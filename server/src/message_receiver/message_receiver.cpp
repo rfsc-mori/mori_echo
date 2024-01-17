@@ -119,11 +119,9 @@ auto receive_message<messages::echo_request>(client_channel& channel,
     -> boost::asio::awaitable<messages::echo_request> {
   constexpr auto min_message_size = header_size + sizeof(std::uint16_t);
 
-  constexpr auto max_message_size = std::min(
-      std::size_t{
-          std::numeric_limits<decltype(std::declval<messages::message_header>()
-                                           .total_size)>::max()},
-      min_message_size + std::numeric_limits<std::uint16_t>::max());
+  const auto max_message_size =
+      std::min(std::size_t{header.total_size},
+               min_message_size + std::numeric_limits<std::uint16_t>::max());
 
   if (header.type != messages::message_type::ECHO_REQUEST) {
     throw exceptions::client_error{"Wrong message type."};
