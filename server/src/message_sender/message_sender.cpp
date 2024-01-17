@@ -44,7 +44,7 @@ auto send_message<messages::login_response>::operator()(
   co_await send_header(channel, total_size,
                        messages::message_type::LOGIN_RESPONSE, sequence);
 
-  const auto login_status_code =
+  auto login_status_code =
       static_cast<std::underlying_type_t<decltype(status_code)>>(status_code);
 
   if constexpr (config::byte_order == config::endian_mode::LITTLE_ENDIAN_MODE) {
