@@ -68,12 +68,6 @@ Build dependencies:
 
 ## Building
 
-### Docker:
-
-```sh
-docker compose up
-```
-
 ### Manually:
 
 #### Debug:
@@ -90,10 +84,24 @@ cmake -B build/ --preset release
 cmake --build build/
 ```
 
-#### Running:
+## Running:
+
+### Locally:
 
 ```sh
 ./build/server/mori_echo_server
+```
+
+### Docker, locally:
+
+```sh
+docker compose up
+```
+
+### Docker, from GitHub Registry:
+
+```sh
+docker run --rm -p 31216:31216 ghcr.io/rfsc-mori/mori_echo
 ```
 
 # Testing
