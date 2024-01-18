@@ -14,7 +14,7 @@ public:
   [[nodiscard]] auto receive(std::size_t count)
       -> boost::asio::awaitable<std::vector<std::byte>>;
 
-  [[nodiscard]] auto send(std::vector<std::byte> data)
+  [[nodiscard]] auto send(const std::vector<std::byte>& data)
       -> boost::asio::awaitable<void>;
 
   template <typename T>

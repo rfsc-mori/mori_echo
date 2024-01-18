@@ -16,7 +16,7 @@ auto client_channel::receive(std::size_t count)
   co_return buffer;
 }
 
-auto client_channel::send(std::vector<std::byte> data)
+auto client_channel::send(const std::vector<std::byte>& data)
     -> boost::asio::awaitable<void> {
   co_await boost::asio::async_write(socket, boost::asio::buffer(data),
                                     boost::asio::use_awaitable);

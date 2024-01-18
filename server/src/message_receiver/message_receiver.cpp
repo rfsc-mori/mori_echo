@@ -45,7 +45,6 @@ inline constexpr auto header_size =
   }
 
   const auto type = co_await channel.receive_as<std::uint8_t>();
-  const auto sequence = co_await channel.receive_as<std::uint8_t>();
 
   auto actual_type = messages::message_type{};
 
@@ -60,6 +59,8 @@ inline constexpr auto header_size =
     default:
       throw exceptions::client_error{"Invalid message type."};
   }
+
+  const auto sequence = co_await channel.receive_as<std::uint8_t>();
 
   co_return messages::message_header{
       .total_size = total_size,
@@ -119,9 +120,11 @@ auto receive_message<messages::echo_request>(client_channel& channel,
     -> boost::asio::awaitable<messages::echo_request> {
   constexpr auto min_message_size = header_size + sizeof(std::uint16_t);
 
-  const auto max_message_size =
-      std::min(std::size_t{header.total_size},
-               min_message_size + std::numeric_limits<std::uint16_t>::max());
+  constexpr auto max_message_size = std::min(
+      std::size_t{
+          std::numeric_limits<decltype(std::declval<messages::message_header>()
+                                           .total_size)>::max()},
+      min_message_size + std::numeric_limits<std::uint16_t>::max());
 
   if (header.type != messages::message_type::ECHO_REQUEST) {
     throw exceptions::client_error{"Wrong message type."};
@@ -141,8 +144,7 @@ auto receive_message<messages::echo_request>(client_channel& channel,
     boost::endian::big_to_native_inplace(message_size);
   }
 
-  const auto final_message_size =
-      static_cast<std::uint16_t>(min_message_size + message_size);
+  const auto final_message_size = min_message_size + message_size;
 
   if (header.total_size != final_message_size) {
     throw exceptions::client_error{"Message size mismatch."};
