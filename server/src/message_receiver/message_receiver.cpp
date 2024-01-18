@@ -144,8 +144,7 @@ auto receive_message<messages::echo_request>(client_channel& channel,
     boost::endian::big_to_native_inplace(message_size);
   }
 
-  const auto final_message_size =
-      static_cast<std::uint16_t>(min_message_size + message_size);
+  const auto final_message_size = min_message_size + message_size;
 
   if (header.total_size != final_message_size) {
     throw exceptions::client_error{"Message size mismatch."};
