@@ -45,7 +45,6 @@ inline constexpr auto header_size =
   }
 
   const auto type = co_await channel.receive_as<std::uint8_t>();
-  const auto sequence = co_await channel.receive_as<std::uint8_t>();
 
   auto actual_type = messages::message_type{};
 
@@ -60,6 +59,8 @@ inline constexpr auto header_size =
     default:
       throw exceptions::client_error{"Invalid message type."};
   }
+
+  const auto sequence = co_await channel.receive_as<std::uint8_t>();
 
   co_return messages::message_header{
       .total_size = total_size,
